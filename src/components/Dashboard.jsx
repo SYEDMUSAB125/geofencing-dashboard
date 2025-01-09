@@ -7,11 +7,15 @@ import Header from "./Header";
 
 export default function Dashboard() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [farmers, setFarmers] = useState([]);
+  const [farmerDetails, setFarmerDetails] = useState({});
+  const [expandedFarmers, setExpandedFarmers] = useState(false);
+  const [expandedData, setExpandedData] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     farmName: "",
-    latitude: "",
-    longitude: "",
+    lat: "",
+    long: "",
   });
   const [farms, setFarms] = useState([]);
   const { saveFieldData, fetchFieldData, deleteFieldData, updateFieldData } = useFirebase();
@@ -24,24 +28,54 @@ export default function Dashboard() {
     };
     fetchData();
   }, []);
-  
+
+  // Validation function for lat/lng
+  const validateLatLng = (value) => {
+    const regex = /^(-?\d+(\.\d+)?)(,-?\d+(\.\d+)?)*$/; // Comma-separated numbers
+    return regex.test(value);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateLatLng(formData.lat) || !validateLatLng(formData.long)) {
+      alert("Please enter valid lat and long values, separated by commas.");
+      return;
+    }
+
     const uniqueId = formData.email.split("@")[0];
+
+  
 
     // Save data to Firebase
     await saveFieldData(uniqueId, {
       farmName: formData.farmName,
-      latitude: formData.latitude,
-      longitude: formData.longitude,
+      lat: formData.lat,
+      long: formData.long,
     });
-
+    useEffect(() => {
+      const fetchData = async () => {
+        const data = await fetchFieldData();
+  
+        // Map farmers with their emails and field data
+        const farmerMap = {};
+        data.forEach((item) => {
+          if (!farmerMap[item.userId]) {
+            farmerMap[item.userId] = { email: `${item.userId}@example.com`, data: [] }; // Assuming email is derived from userId
+          }
+          farmerMap[item.userId].data.push(item);
+        });
+  
+        setFarmers(Object.keys(farmerMap)); // List of farmer IDs
+        setFarmerDetails(farmerMap); // Farmer details (emails and data)
+      };
+      fetchData();
+    }, []);
     // Update local state
     setFarms([...farms, { id: uniqueId, ...formData }]);
 
     // Reset form
-    setFormData({ email: "", farmName: "", latitude: "", longitude: "" });
+    setFormData({ email: "", farmName: "", lat: "", long: "" });
     alert("Data saved successfully!");
   };
 
@@ -61,7 +95,7 @@ export default function Dashboard() {
     <div className="flex-1 flex flex-col">
       <Drawer isOpen={drawerOpen} closeDrawer={() => setDrawerOpen(false)} />
       <Header toggleDrawer={() => setDrawerOpen(!drawerOpen)} />
-    
+
       <main className="flex-1 p-8 grid grid-cols-2 gap-8">
         {/* Form Section */}
         <motion.div
@@ -102,35 +136,34 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="latitude" className="block text-sm font-medium text-gray-700">
-                  Latitude
-                </label>
-                <input
-                  id="latitude"
-                  type="text"
-                  value={formData.latitude}
-                  onChange={(e) => setFormData({ ...formData, latitude: e.target.value })}
-                  placeholder="Enter latitude"
-                  className="mt-1 block w-full px-4 py-2 border rounded-md"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="longitude" className="block text-sm font-medium text-gray-700">
-                  Longitude
-                </label>
-                <input
-                  id="longitude"
-                  type="text"
-                  value={formData.longitude}
-                  onChange={(e) => setFormData({ ...formData, longitude: e.target.value })}
-                  placeholder="Enter longitude"
-                  className="mt-1 block w-full px-4 py-2 border rounded-md"
-                  required
-                />
-              </div>
+            <div>
+              <label htmlFor="lat" className="block text-sm font-medium text-gray-700">
+                Lat(s)
+              </label>
+              <input
+                id="lat"
+                type="text"
+                value={formData.lat}
+                onChange={(e) => setFormData({ ...formData, lat: e.target.value })}
+                placeholder="Enter lats separated by commas, e.g., 24.935207,24.931043,67.109395,67.112077"
+                className="mt-1 block w-full px-4 py-2 border rounded-md"
+                required
+              />
+            </div>
+
+            <div>
+              <label htmlFor="long" className="block text-sm font-medium text-gray-700">
+                Long(s)
+              </label>
+              <input
+                id="long"
+                type="text"
+                value={formData.long}
+                onChange={(e) => setFormData({ ...formData, long: e.target.value })}
+                placeholder="Enter longs separated by commas, e.g., 67.109395,67.112077,67.109395,67.112077"
+                className="mt-1 block w-full px-4 py-2 border rounded-md"
+                required
+              />
             </div>
 
             <button
@@ -159,7 +192,10 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm font-bold">{farm.farmName}</p>
                   <p className="text-xs text-gray-500">
-                    {farm.latitude}, {farm.longitude}
+                    Lat(s): {farm.lat}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Long(s): {farm.long}
                   </p>
                 </div>
                 <div className="flex space-x-2">
@@ -185,6 +221,60 @@ export default function Dashboard() {
             ))}
           </ul>
         </motion.div>
+        <div className="p-6">
+      {/* Farmers Section */}
+      <div className="bg-white shadow rounded-lg p-4 mb-6">
+        <h2 className="text-xl font-bold">Farmers</h2>
+        <p className="text-gray-600">Total Farmers: {farmers.length}</p>
+        <button
+          onClick={() => setExpandedFarmers(!expandedFarmers)}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          {expandedFarmers ? 'Hide Farmers' : 'Show Farmers'}
+        </button>
+        {expandedFarmers && (
+          <ul className="mt-4">
+            {farmers.map((farmerId) => (
+              <li key={farmerId} className="border-b py-2">
+                Farmer ID: {farmerId} <br />
+                Email: {farmerDetails[farmerId]?.email}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Data Entries Section */}
+      <div className="bg-white shadow rounded-lg p-4">
+        <h2 className="text-xl font-bold">Data Entries</h2>
+        <p className="text-gray-600">
+          Total Data Entries: {farmers.reduce((total, farmerId) => total + farmerDetails[farmerId].data.length, 0)}
+        </p>
+        <button
+          onClick={() => setExpandedData(!expandedData)}
+          className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          {expandedData ? 'Hide Data Entries' : 'Show Data Entries'}
+        </button>
+        {expandedData && (
+          <ul className="mt-4">
+            {farmers.map((farmerId) => (
+              <li key={farmerId} className="border-b py-2">
+                <strong>Farmer ID:</strong> {farmerId} <br />
+                <strong>Data:</strong>
+                <ul className="ml-4 mt-2">
+                  {farmerDetails[farmerId].data.map((field, index) => (
+                    <li key={index} className="text-gray-700">
+                      Farm Name: {field.farmName}, Lat: {field.lat}, Long: {field.long}
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
       </main>
     </div>
   );
