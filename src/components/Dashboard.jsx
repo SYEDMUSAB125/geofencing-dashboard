@@ -39,7 +39,8 @@ export default function Dashboard() {
     fetchData();
   }, [fetchFieldData]);
 
-  const validateLatLng = (value) => /^(-?\d+(\.\d+)?)(,-?\d+(\.\d+)?)*$/.test(value);
+  const validateLatLng = (value) => /^\s*(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)(\s*)$/.test(value);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
