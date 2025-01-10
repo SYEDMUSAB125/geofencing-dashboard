@@ -20,24 +20,29 @@ export default function Dashboard() {
   const [farms, setFarms] = useState([]);
   const { saveFieldData, fetchFieldData, deleteFieldData, updateFieldData } = useFirebase();
 
-  // Fetch data on component mount
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchFieldData();
+
+      const farmerMap = {};
+      data.forEach((item) => {
+        if (!farmerMap[item.userId]) {
+          farmerMap[item.userId] = { email: `${item.userId}@example.com`, data: [] };
+        }
+        farmerMap[item.userId].data.push(item);
+      });
+
+      setFarmers(Object.keys(farmerMap));
+      setFarmerDetails(farmerMap);
       setFarms(data);
     };
     fetchData();
-  }, []);
+  }, [fetchFieldData]);
 
-  // Validation function for lat/lng
-  const validateLatLng = (value) => {
-    const regex = /^(-?\d+(\.\d+)?)(,-?\d+(\.\d+)?)*$/; // Comma-separated numbers
-    return regex.test(value);
-  };
+  const validateLatLng = (value) => /^(-?\d+(\.\d+)?)(,-?\d+(\.\d+)?)*$/.test(value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateLatLng(formData.lat) || !validateLatLng(formData.long)) {
       alert("Please enter valid lat and long values, separated by commas.");
       return;
@@ -45,36 +50,13 @@ export default function Dashboard() {
 
     const uniqueId = formData.email.split("@")[0];
 
-  
-
-    // Save data to Firebase
     await saveFieldData(uniqueId, {
       farmName: formData.farmName,
       lat: formData.lat,
       long: formData.long,
     });
-    useEffect(() => {
-      const fetchData = async () => {
-        const data = await fetchFieldData();
-  
-        // Map farmers with their emails and field data
-        const farmerMap = {};
-        data.forEach((item) => {
-          if (!farmerMap[item.userId]) {
-            farmerMap[item.userId] = { email: `${item.userId}@example.com`, data: [] }; // Assuming email is derived from userId
-          }
-          farmerMap[item.userId].data.push(item);
-        });
-  
-        setFarmers(Object.keys(farmerMap)); // List of farmer IDs
-        setFarmerDetails(farmerMap); // Farmer details (emails and data)
-      };
-      fetchData();
-    }, []);
-    // Update local state
-    setFarms([...farms, { id: uniqueId, ...formData }]);
 
-    // Reset form
+    setFarms([...farms, { id: uniqueId, ...formData }]);
     setFormData({ email: "", farmName: "", lat: "", long: "" });
     alert("Data saved successfully!");
   };
@@ -90,6 +72,7 @@ export default function Dashboard() {
       farms.map((farm) => (farm.id === id ? { id, ...updatedData } : farm))
     );
   };
+
 
   return (
     <div className="flex-1 flex flex-col">
@@ -233,7 +216,9 @@ export default function Dashboard() {
           {expandedFarmers ? 'Hide Farmers' : 'Show Farmers'}
         </button>
         {expandedFarmers && (
-          <ul className="mt-4">
+          <ul
+            className="mt-4 max-h-32 overflow-y-auto border border-gray-300 rounded-lg"
+          >
             {farmers.map((farmerId) => (
               <li key={farmerId} className="border-b py-2">
                 Farmer ID: {farmerId} <br />
@@ -242,6 +227,7 @@ export default function Dashboard() {
             ))}
           </ul>
         )}
+
       </div>
 
       {/* Data Entries Section */}
@@ -257,7 +243,9 @@ export default function Dashboard() {
           {expandedData ? 'Hide Data Entries' : 'Show Data Entries'}
         </button>
         {expandedData && (
-          <ul className="mt-4">
+          <ul
+            className="mt-4 max-h-32 overflow-y-auto border border-gray-300 rounded-lg"
+          >
             {farmers.map((farmerId) => (
               <li key={farmerId} className="border-b py-2">
                 <strong>Farmer ID:</strong> {farmerId} <br />
@@ -273,6 +261,7 @@ export default function Dashboard() {
             ))}
           </ul>
         )}
+
       </div>
     </div>
       </main>
