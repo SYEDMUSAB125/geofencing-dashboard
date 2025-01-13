@@ -4,15 +4,11 @@ import { ref, set, get, remove, update } from 'firebase/database';
 export const useFirebase = () => {
   const saveFieldData = async (userId, fieldData) => {
     try {
-      // Reference to the user's farm name in Firebase
       const farmRef = ref(database, `farmer/${userId}/data/${fieldData.farmName}`);
-
-      // Save lat and longitude under the farm name
       await set(farmRef, {
         lat: fieldData.lat,
         long: fieldData.long,
       });
-
       console.log('Field data saved successfully!');
     } catch (error) {
       console.error('Error saving field data:', error);
@@ -26,14 +22,12 @@ export const useFirebase = () => {
 
       if (snapshot.exists()) {
         const data = snapshot.val();
-
-        // Transform the nested data structure into an array format
         const farms = [];
         Object.keys(data).forEach((userId) => {
           const userFarms = data[userId].data || {};
           Object.keys(userFarms).forEach((farmName) => {
             farms.push({
-              id: `${userId}-${farmName}`, // Create a unique ID combining userId and farmName
+              id: `${userId}-${farmName}`,
               userId,
               farmName,
               lat: userFarms[farmName].lat,
@@ -54,7 +48,7 @@ export const useFirebase = () => {
 
   const deleteFieldData = async (id) => {
     try {
-      const [userId, farmName] = id.split('-'); // Split the unique ID to get userId and farmName
+      const [userId, farmName] = id.split('-');
       const refPath = ref(database, `farmer/${userId}/data/${farmName}`);
       await remove(refPath);
       console.log('Field data deleted successfully!');
@@ -65,7 +59,7 @@ export const useFirebase = () => {
 
   const updateFieldData = async (id, updatedData) => {
     try {
-      const [userId, farmName] = id.split('-'); // Split the unique ID to get userId and farmName
+      const [userId, farmName] = id.split('-');
       const refPath = ref(database, `farmer/${userId}/data/${farmName}`);
       await update(refPath, updatedData);
       console.log('Field data updated successfully!');
@@ -74,5 +68,38 @@ export const useFirebase = () => {
     }
   };
 
-  return { saveFieldData, fetchFieldData, deleteFieldData, updateFieldData };
+  const adminLogin = async (email, password) => {
+    try {
+      // Reference to the admins data node in Firebase
+      const adminsRef = ref(database, `admins`);
+
+      // Fetch all admins
+      const snapshot = await get(adminsRef);
+
+      if (snapshot.exists()) {
+        const adminsData = snapshot.val();
+
+        // Search for a matching email and password in the admins data
+        for (const userId in adminsData) {
+          const admin = adminsData[userId];
+
+          if (admin.email === email && admin.password === password) {
+            console.log("Admin logged in successfully");
+            return { success: true, message: "Login successful" };
+          }
+        }
+
+        console.warn("Incorrect email or password.");
+        return { success: false, message: "Incorrect email or password" };
+      } else {
+        console.error("Admins node doesn't exist in the database");
+        return { success: false, message: "No admin data found" };
+      }
+    } catch (error) {
+      console.error("Error during admin login:", error);
+      return { success: false, message: error.message };
+    }
+  };
+
+  return { saveFieldData, fetchFieldData, deleteFieldData, updateFieldData, adminLogin };
 };

@@ -1,5 +1,5 @@
-import Dashboard from '@/components/Dashboard';
+import Auth from '@/components/login';
 
 export default function DashboardPage() {
-  return <Dashboard />;
+  return <Auth />;
 }

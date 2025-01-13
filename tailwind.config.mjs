@@ -10,7 +10,22 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        "theme-yellow": '#9954b1',
+        "theme-yellow-dark": '#9954b1',
+        "theme-dark": '#9954b1',
       },
+      height: {
+        'screen-75': '90vh',
+        'screen-50': '50vh'
+      },
+      fontFamily: {
+        'main': ['"Open Sans"']
+      }
+    },
+  },
+  variants: {
+    extend: {
+      scale: ['active', 'group-hover'],
     },
   },
   plugins: [],
