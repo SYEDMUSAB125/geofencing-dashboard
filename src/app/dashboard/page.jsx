@@ -1,15 +1,18 @@
-"use client";
+"use client"
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { useFirebase } from "@/hooks/useFirebase";
-import Header from "./Header";
+import Header from "../components/Header";
 
 export default function Dashboard() {
   const [farmers, setFarmers] = useState([]);
   const [farmerDetails, setFarmerDetails] = useState({});
   const [expandedFarmers, setExpandedFarmers] = useState(false);
   const [expandedData, setExpandedData] = useState(false);
+  const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
+
   const [formData, setFormData] = useState({
     email: "",
     farmName: "",
@@ -39,27 +42,44 @@ export default function Dashboard() {
     fetchData();
   }, [fetchFieldData]);
 
-  const validateLatLng = (value) => /^\s*(-?\d+(\.\d+)?),\s*(-?\d+(\.\d+)?)(\s*)$/.test(value);
-
-
+ 
+  
+  const validateLatLng = (lat, lng) => {
+    const latArray = lat.split(",").map((value) => parseFloat(value.trim()));
+    const lngArray = lng.split(",").map((value) => parseFloat(value.trim()));
+  
+    const invalidLat = latArray.some((value) => isNaN(value) || value < -90 || value > 90);
+    const invalidLng = lngArray.some((value) => isNaN(value) || value < -180 || value > 180);
+  
+    return { isValid: !invalidLat && !invalidLng, invalidLat, invalidLng };
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateLatLng(formData.lat) || !validateLatLng(formData.long)) {
-      Swal.fire("Invalid Input", "Please enter valid lat and long values.", "error");
+  
+    const { lat, long } = formData;
+    const { isValid, invalidLat, invalidLng } = validateLatLng(lat, long);
+  
+    if (!isValid) {
+      let errorMessage = "Please correct the following errors:\n";
+      if (invalidLat) errorMessage += "- Latitude must be between -90 and 90.\n";
+      if (invalidLng) errorMessage += "- Longitude must be between -180 and 180.\n";
+  
+      Swal.fire("Invalid Input", errorMessage, "error");
       return;
     }
-
+  
     const uniqueId = formData.email.split("@")[0];
-
+  
     await saveFieldData(uniqueId, {
       farmName: formData.farmName,
       lat: formData.lat,
       long: formData.long,
     });
-
+  
     setFarms([...farms, { id: uniqueId, ...formData }]);
     setFormData({ email: "", farmName: "", lat: "", long: "" });
-
+  
     Swal.fire("Success", "Data saved successfully!", "success");
   };
 
@@ -100,15 +120,16 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <Header  />
 
-      <main className="flex-1 p-5 grid lg:grid-cols-2 gap-6">
+      <Header />
+
+      <main className="flex-1 p-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Form Section */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white text-black shadow-lg rounded-lg p-6 lg:col-span-1"
+          className="bg-white text-black shadow-lg rounded-lg p-6"
         >
           <h2 className="text-2xl font-bold mb-6">Add New Farm</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -173,104 +194,154 @@ export default function Dashboard() {
             </div>
 
             <button
-  type="submit"
-  className="w-full bg-black text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-500 focus:ring focus:ring-indigo-200"
->
-  Save to Firebase
-</button>
+              type="submit"
+              className="w-full bg-black text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-500 focus:ring focus:ring-indigo-200"
+            >
+              Save to Cloud
+            </button>
           </form>
         </motion.div>
 
         {/* Data Section */}
-        <motion.div
+       {/* Saved Farms Section */}
+     {/* Data Section */}
+     <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className=" bg-white text-black  shadow-lg rounded-lg p-6 lg:col-span-2"
+          className="bg-white text-black shadow-lg rounded-lg p-6"
         >
-          <h2 className="text-2xl font-bold mb-6 text-black">Saved Farms</h2>
-          <ul className="space-y-4 max-h-96 overflow-y-auto">
-            {farms.map((farm) => (
-              <li
-                key={farm.id}
-                className="border rounded-md p-4 flex justify-between items-center bg-gray-50 hover:shadow-lg transition-shadow"
-              >
-                <div>
-                  <p className="text-lg font-bold">{farm.farmName}</p>
-                  <p className="text-sm text-gray-600">
-                    Lat(s): {farm.lat}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Long(s): {farm.long}
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleEdit(farm.id, farm)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(farm.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-          
+          <h2 className="text-2xl font-bold mb-4">Saved Farms</h2>
+          {/* Dropdown Button for Mobile */}
+          <div className="lg:hidden mb-4">
+            <button
+              onClick={() => setExpandedFarmers(!expandedFarmers)}
+              className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg rounded-lg"
+            >
+              {expandedFarmers ? 'Hide Saved Farms' : 'Show Saved Farms'}
+            </button>
+          </div>
+          {/* Farms List (Conditional Rendering for Mobile) */}
+          {expandedFarmers && (
+            <ul className="space-y-4 max-h-96 overflow-y-auto">
+              {farms.map((farm) => (
+                <li
+                  key={farm.id}
+                  className="border rounded-md p-4 flex justify-between items-center bg-gray-50 hover:shadow-lg transition-shadow"
+                >
+                  <div>
+                    <p className="text-lg font-bold">{farm.farmName}</p>
+                    <p className="text-sm text-gray-600">
+                      Lat(s): {farm.lat}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Long(s): {farm.long}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(farm.id, farm)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(farm.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+          {/* Desktop View Farms List */}
+          <div className="hidden lg:block">
+            <ul className="space-y-4 max-h-96 overflow-y-auto">
+              {farms.map((farm) => (
+                <li
+                  key={farm.id}
+                  className="border rounded-md p-4 flex justify-between items-center bg-gray-50 hover:shadow-lg transition-shadow"
+                >
+                  <div>
+                    <p className="text-lg font-bold">{farm.farmName}</p>
+                    <p className="text-sm text-gray-600">
+                      Lat(s): {farm.lat}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      Long(s): {farm.long}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(farm.id, farm)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(farm.id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </motion.div>
 
-        {/* Farmers Section */}
+        {/* Farmers Data Section */}
         <div className="lg:col-span-3">
-      <div className="bg-white shadow rounded-lg p-6">
-        
-        <p className="text-2xl font-bold">Total Farmers: {farmers.length}</p>
-        <button
-          onClick={() => setExpandedFarmers(!expandedFarmers)}
-          className="mt-4 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600  shadow-lg rounded-lg text-white rounded hover:bg-blue-600"
-        >
-          {expandedFarmers ? 'Hide Farmers Data' : 'Show Farmers Data'}
-        </button>
-        {expandedFarmers && (
-          <ul className="mt-4 max-h-80 overflow-y-auto border border-gray-300 rounded-lg">
-            {farmers.map((farmerId) => (
-              <li key={farmerId} className="border-b py-4 px-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold">Farmer ID: {farmerId}</p>
-                    <p className="text-gray-600">Email: {farmerDetails[farmerId]?.email}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setExpandedData((prevState) =>
-                        prevState === farmerId ? null : farmerId
-                      );
-                    }}
-                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                  >
-                    {expandedData === farmerId ? 'Hide Details' : 'View Details'}
-                  </button>
-                </div>
-                {expandedData === farmerId && (
-                  <ul className="mt-4 ml-4 border-t pt-4">
-                    {farmerDetails[farmerId]?.data.map((field, index) => (
-                      <li key={index} className="text-gray-700 mb-2">
-                        <strong>Farm Name:</strong> {field.farmName}, <strong>Lat:</strong> {field.lat}, <strong>Long:</strong> {field.long}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
-
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-2xl font-bold">Total Farmers: {farmers.length}</h2>
+            <button
+              onClick={() => setExpandedFarmersData(!expandedFarmersData)}
+              className="mt-4 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg rounded-lg"
+            >
+              {expandedFarmersData ? "Hide Farmers Data" : "Show Farmers Data"}
+            </button>
+            {expandedFarmersData && (
+              <ul className="mt-4 max-h-80 overflow-y-auto border border-gray-300 rounded-lg">
+                {farmers.map((farmerId) => (
+                  <li key={farmerId} className="border-b py-4 px-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-semibold">Farmer ID: {farmerId}</p>
+                        <p className="text-gray-600">
+                          Email: {farmerDetails[farmerId]?.email}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() =>
+                          setExpandedData((prevState) =>
+                            prevState === farmerId ? null : farmerId
+                          )
+                        }
+                        className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                      >
+                        {expandedData === farmerId ? "Hide Details" : "View Details"}
+                      </button>
+                    </div>
+                    {expandedData === farmerId && (
+                      <ul className="mt-4 ml-4 border-t pt-4">
+                        {farmerDetails[farmerId]?.data.map((field, index) => (
+                          <li key={index} className="text-gray-700 mb-2">
+                            <strong>Farm Name:</strong> {field.farmName},{" "}
+                            <strong>Lat:</strong> {field.lat}, <strong>Long:</strong>{" "}
+                            {field.long}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
