@@ -89,9 +89,7 @@ export default function LoginPage() {
           )}
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">Don't have an account? <a href="#" className="text-indigo-500 hover:underline">Sign up</a></p>
-        </div>
+        
       </div>
     </div>
   );
