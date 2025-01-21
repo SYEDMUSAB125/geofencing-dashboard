@@ -5,18 +5,19 @@ import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { useFirebase } from "@/hooks/useFirebase";
 import Header from "../components/Header";
-
+import { LuUpload } from "react-icons/lu";
+import UploadImg from "../components/UploadImg";
 export default function Dashboard() {
   const [farmers, setFarmers] = useState([]);
   const [farmerDetails, setFarmerDetails] = useState({});
   const [expandedFarmers, setExpandedFarmers] = useState(false);
   const [expandedData, setExpandedData] = useState(false);
   const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
-
+  const [openImgSelecter, setOpenImgSelecter] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     farmName: "",
-    lat: "",
+    lat:  "",
     long: "",
   });
   const [farms, setFarms] = useState([]);
@@ -118,6 +119,24 @@ export default function Dashboard() {
     }
   };
 
+const handleKml = ()=>{
+  setOpenImgSelecter(true);
+}
+
+const getLat = (latt)=>{
+  setFormData((prev)=>({...prev,lat:latt}))
+
+}
+
+const getLong = (longg)=>{
+  console.log(longg)
+  setFormData((prev)=>({...prev,long:longg}))
+ 
+}
+
+
+
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
 
@@ -131,7 +150,12 @@ export default function Dashboard() {
           transition={{ duration: 0.5 }}
           className="bg-white text-black shadow-lg rounded-lg p-6"
         >
-          <h2 className="text-2xl font-bold mb-6">Add New Farm</h2>
+         <div className="flex justify-between">
+         <h2 className="text-2xl font-bold mb-6">Add New Farm</h2>
+         <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
+         <LuUpload size={22} />
+         </div>
+         </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium">
@@ -171,7 +195,7 @@ export default function Dashboard() {
                 id="lat"
                 type="text"
                 value={formData.lat}
-                onChange={(e) => setFormData({ ...formData, lat: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, lat: e.target.value   })}
                 placeholder="Enter latitudes separated by commas"
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                 required
@@ -186,7 +210,7 @@ export default function Dashboard() {
                 id="long"
                 type="text"
                 value={formData.long}
-                onChange={(e) => setFormData({ ...formData, long: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, long: e.target.value   })}
                 placeholder="Enter longitudes separated by commas"
                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-indigo-200 focus:border-indigo-400"
                 required
@@ -341,6 +365,9 @@ export default function Dashboard() {
               </ul>
             )}
           </div>
+          <div className={`${openImgSelecter ? "block" : "hidden"}`}>
+    <UploadImg getLat={getLat} getLong={getLong} setOpenImgSelecter={setOpenImgSelecter}/>
+  </div>
         </div>
       </main>
     </div>
