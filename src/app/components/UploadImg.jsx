@@ -179,13 +179,13 @@ const UploadImg = ({ setOpenImgSelecter,getLat ,getLong }) => {
             <div className="flex items-center justify-between w-[50%] mt-4 bg-[#333] p-2 rounded-md gap-2">
               <button
                 onClick={() => setSelectedFile(null)}
-                className="w-1/2 py-3 rounded bg-[#474747] text-white border-none outline-none cursor-pointer hover:bg-black duration-300 hover:text-white"
+                className="w-1/2 py-3 rounded bg-[#474747] text-white border-none outline-none cursor-pointer hover:bg-red-600 duration-300 hover:text-white"
               >
                 Cancel
               </button>
               <button
                 onClick={handleProcessbtn}
-                className="w-1/2 py-3 rounded bg-green-500 text-white border-none outline-none cursor-pointer hover:bg-green-600 duration-300 hover:text-white"
+                className="w-1/2 py-3 rounded bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-none outline-none cursor-pointer hover:bg-green-600 duration-300 hover:text-white"
               >
                 Done
               </button>
