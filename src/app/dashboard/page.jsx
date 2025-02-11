@@ -155,6 +155,7 @@ const getLong = (longg)=>{
          <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
          <LuUpload size={22} />
          </div>
+        
          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -366,8 +367,11 @@ const getLong = (longg)=>{
             )}
           </div>
           <div className={`${openImgSelecter ? "block" : "hidden"}`}>
-    <UploadImg getLat={getLat} getLong={getLong} setOpenImgSelecter={setOpenImgSelecter}/>
+    <UploadImg getLat={getLat} getLong={getLong}  setOpenImgSelecter={setOpenImgSelecter}/>
+
   </div>
+
+ 
         </div>
       </main>
     </div>

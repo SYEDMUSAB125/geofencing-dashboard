@@ -5,109 +5,109 @@ import * as toGeoJSON from "togeojson";
 const UploadImg = ({ setOpenImgSelecter,getLat ,getLong }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState(null);
-  const [processBtn, setProcessBtn] = useState(false);
-    const [cleanedLat , setCleanedLat] = useState(null);
-    const [cleanedLong , setCleanedLong] = useState(null);
+  const [cleanedLat, setCleanedLat] = useState(null);
+  const [cleanedLong, setCleanedLong] = useState(null);
+  const [placemarks, setPlacemarks] = useState([]);
+  const [selectedPlacemark, setSelectedPlacemark] = useState(null);
 
-
-  // Handle file change (for file input)
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && (file.name.endsWith(".kml") || file.name.endsWith(".kmz"))) {
-      setSelectedFile(file);
-      handleFileRead(file); // Read and process the file
-    } else {
-      setError("Invalid file type. Please upload a .kml or .kmz file.");
-    }
+    processFile(file);
   };
 
-  // Handle file drop (for drag and drop)
   const handleFileDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file && (file.name.endsWith(".kml") || file.name.endsWith(".kmz"))) {
-      setSelectedFile(file);
-      handleFileRead(file); // Read and process the file
-    } else {
-      setError("Invalid file type. Please upload a .kml or .kmz file.");
-    }
+    processFile(file);
   };
 
-  // Allow drag over the file drop area
+  const processFile = (file) => {
+    if (!file || (!file.name.endsWith(".kml") && !file.name.endsWith(".kmz"))) {
+      setError("Invalid file type. Please upload a .kml or .kmz file.");
+      return;
+    }
+    setSelectedFile(file);
+    parseKMLFile(file);
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setError(null);
+    setPlacemarks([]);
+    setSelectedPlacemark(null);
+  };
   const handleDragOver = (e) => {
     e.preventDefault();
   };
-
-  // Remove the selected file
-  const handleRemoveFile = () => {
-    setSelectedFile(null);
-    setError(null); // Clear any existing errors
-  };
-
-  // Parse KML and convert it to GeoJSON
-  const handleFileRead = (file) => {
+  const parseKMLFile = (file) => {
     const reader = new FileReader();
     reader.onload = function (event) {
       try {
         const kmlText = event.target.result;
-
-        // Log the KML content for debugging
-        // console.log("KML Content:", kmlText);
-
         const parser = new DOMParser();
         const kml = parser.parseFromString(kmlText, "application/xml");
 
-        // Check for parsing errors
-        const parserError = kml.getElementsByTagName("parsererror");
-        if (parserError.length > 0) {
-          console.error("Parser Error:", parserError[0].textContent); // Log the specific parser error
+        if (kml.getElementsByTagName("parsererror").length > 0) {
           setError("Failed to parse KML file. Invalid file structure.");
           return;
         }
 
-        // Convert the KML to GeoJSON using togeojson
-        const geoJson = toGeoJSON.kml(kml);
-        const coordinates = geoJson.features[0]?.geometry?.coordinates;
+        const placemarkElements = kml.getElementsByTagName("Placemark");
+        const extractedPlacemarks = [];
+       
+        for (let i = 0; i < placemarkElements.length; i++) {
+          const placemark = placemarkElements[i];
+          const id = placemark.getAttribute("id") || `placemark-${i}`;
+          const name = placemark.getElementsByTagName("name")[0]?.textContent || `Placemark ${i + 1}`;
+          const coordinatesText = placemark.getElementsByTagName("coordinates")[0]?.textContent;
 
-        if (coordinates) {
-          // Flatten the nested array of coordinates if needed
-          const allCoordinates = coordinates.flat();
-
-          // Swap the coordinates and separate latitudes and longitudes
-          const latitudes = [];
-          const longitudes = [];
-
-          allCoordinates.forEach((coord) => {
-            // Swap coordinates (latitude and longitude)
-            const swapped = [coord[1], coord[0]];
-            // Collect latitudes and longitudes
-            latitudes.push(swapped[0]);
-            longitudes.push(swapped[1]);
-          });
-
-          setCleanedLat(latitudes.join(","));
-          setCleanedLong(longitudes.join(","));
-        
-        } else {
-          setError("Could not find coordinates in the KML file.");
+          if (coordinatesText) {
+            const coordinates = coordinatesText.trim().split(" ").map(coord => coord.split(",").map(Number));
+            extractedPlacemarks.push({ id, name, coordinates });
+          }
         }
 
-        // Clear any previous error
-        setError(null);
+        if (extractedPlacemarks.length > 0) {
+       
+          setPlacemarks(extractedPlacemarks);
+        
+        } else {
+          const geoJson = toGeoJSON.kml(kml);
+          const coordinates = geoJson.features[0]?.geometry?.coordinates;
+          
+          if (coordinates) {
+            const latitudes = coordinates.map(coord => coord[1]);
+            const longitudes = coordinates.map(coord => coord[0]);
+            setCleanedLat(latitudes.join(","));
+            setCleanedLong(longitudes.join(","));
+          } else {
+            setError("Could not find coordinates in the KML file.");
+          }
+        }
       } catch (err) {
-        // Log the specific error
         console.error("File Read Error:", err);
         setError("Error reading the file. Please try again.");
       }
     };
-
-    reader.readAsText(file); // Start reading the file as text
+    reader.readAsText(file);
+  
   };
- const handleProcessbtn = () => {
-    getLat(cleanedLat);
-    getLong(cleanedLong);
+
+  const handleProcessbtn = () => {
+    if (selectedPlacemark) {
+      const selectedPlacemarkData = placemarks.find(p => p.id === selectedPlacemark);
+      if (selectedPlacemarkData) {
+        const latitudes = selectedPlacemarkData.coordinates.map(coord => coord[1]);
+        const longitudes = selectedPlacemarkData.coordinates.map(coord => coord[0]);
+        getLat(latitudes.join(","));
+        getLong(longitudes.join(","));
+      }
+    } else {
+      getLat(cleanedLat);
+      getLong(cleanedLong);
+    }
     setOpenImgSelecter(false);
-  }
+  };
   return (
     <div className="absolute w-full h-screen bg-black bg-opacity-50 top-0 left-0 right-0 z-[10000] flex items-center justify-center">
       <div className="relative w-[90%] md:w-[80%] lg:w-[70%] min-h-[400px] bg-white flex flex-col items-center justify-start p-4 rounded-xl">
@@ -154,6 +154,7 @@ const UploadImg = ({ setOpenImgSelecter,getLat ,getLong }) => {
               </label>
             </div>
           </div>
+      
           {selectedFile && (
             <div className="flex mt-4 w-full justify-between items-center">
               <div className="flex justify-between items-center">
@@ -174,6 +175,14 @@ const UploadImg = ({ setOpenImgSelecter,getLat ,getLong }) => {
             </div>
           )}
         </div>
+        {placemarks.length > 0 && (
+          <select className="mt-4 p-2 border" value={selectedPlacemark || ""} onChange={(e) => setSelectedPlacemark(e.target.value)}>
+            <option value="">Select a Placemark</option>
+            {placemarks.map((placemark) => (
+              <option key={placemark.id} value={placemark.id}>{placemark.name}</option>
+            ))}
+          </select>
+        )}
         {selectedFile ? (
           <>
             <div className="flex items-center justify-between w-[50%] mt-4 bg-[#333] p-2 rounded-md gap-2">
