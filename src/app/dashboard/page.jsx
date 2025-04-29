@@ -6,7 +6,9 @@ import Swal from "sweetalert2";
 import { useFirebase } from "@/hooks/useFirebase";
 import Header from "../components/Header";
 import { LuUpload } from "react-icons/lu";
+import { IoMdSettings } from "react-icons/io";
 import UploadImg from "../components/UploadImg";
+import { useRouter } from "next/navigation";
 export default function Dashboard() {
   const [farmers, setFarmers] = useState([]);
   const [farmerDetails, setFarmerDetails] = useState({});
@@ -14,6 +16,7 @@ export default function Dashboard() {
   const [expandedData, setExpandedData] = useState(false);
   const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
   const [openImgSelecter, setOpenImgSelecter] = useState(false);
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     farmName: "",
@@ -135,7 +138,9 @@ const getLong = (longg)=>{
 }
 
 
-
+const handleSetting = () => {
+ router.push("/calibration")
+}
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -152,10 +157,15 @@ const getLong = (longg)=>{
         >
          <div className="flex justify-between">
          <h2 className="text-2xl font-bold mb-6">Add New Farm</h2>
-         <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
+        <div className="flex justify-end space-x-2" >
+        <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
          <LuUpload size={22} />
          </div>
+         <div onClick={handleSetting} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
+         <IoMdSettings size={22} />
+         </div>
         
+        </div>
          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
