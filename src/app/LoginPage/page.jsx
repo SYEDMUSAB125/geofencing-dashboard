@@ -18,7 +18,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     const staticEmail = "crop2x@gmail.com";
-    const staticPassword = "crop2x@";
+    const staticPassword = "crop2x";
 
     if (email !== staticEmail || password !== staticPassword) {
       Swal.fire("Invalid Credentials", "The email or password is incorrect.", "error");
