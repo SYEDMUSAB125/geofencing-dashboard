@@ -50,7 +50,7 @@ export async function POST(request) {
   // Process request
   try {
     const data = await request.json();
-
+    console.log(data)
     const { device_id, username, ph_level, ec, moisture, nitrogen, phosphorous, potassium } = data;
     const value = {
       device_id,
@@ -66,7 +66,7 @@ export async function POST(request) {
       INSERT INTO soil_data ${sql(value, [
         'device_id',
         'username',
-        'ph',
+        'ph_level',
         'ec',
         'moisture',
         'nitrogen',
