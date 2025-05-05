@@ -41,12 +41,12 @@ export default function CalibrationPage() {
       id: "",
       device_id: "",
       username: "",
-      ph_level: "",
-      ec: "",
-      moisture: "",
-      nitrogen: "",
-      phosphorous: "",
-      potassium: "",
+      ph_level: 1,
+      ec: 1,
+      moisture: 1,
+      nitrogen: 1,
+      phosphorous: 1,
+      potassium: 1,
     });
     setError(null);
     setSuccess(false);
@@ -348,8 +348,8 @@ export default function CalibrationPage() {
       {/* Table footer */}
       <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
         <div className="text-sm text-gray-500">
-          Showing <span className="font-medium">1</span> to{" "}
-          <span className="font-medium">{filteredData.length}</span> of{" "}
+          Showing
+          <span className="font-medium"> {filteredData.length}</span>  of{" "}
           <span className="font-medium">{soilData.length}</span> results
         </div>
       </div>
@@ -473,7 +473,6 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter Moisture value"
                     type="number"
-            
                     min="1"
                     onChange={handleChange}
                     required
