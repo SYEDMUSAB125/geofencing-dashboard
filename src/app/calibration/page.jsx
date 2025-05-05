@@ -1,32 +1,34 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { FiPlus, FiFilter, FiX, FiSave, FiRefreshCw } from 'react-icons/fi';
-import { submitCalibrationData } from '../context/SubmitCalibrationdata';
-import { fetchSoilData } from '../context/fetchSoilData';
-import updateCalibrationData from '../context/updateCalbration';
+import { useEffect, useState } from "react";
+import { FiPlus, FiFilter, FiX, FiSave, FiRefreshCw, FiTrash2 } from "react-icons/fi";
+import { submitCalibrationData } from "../context/SubmitCalibrationdata";
+import { fetchSoilData } from "../context/fetchSoilData";
+import updateCalibrationData from "../context/updateCalbration";
+import Swal from "sweetalert2";
+import deleteSoilData from "../context/deleteSoilData";
 
 export default function CalibrationPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [soilData, setSoilData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [mode, setMode] = useState('add'); // 'add' or 'edit'
+  const [mode, setMode] = useState("add"); // 'add' or 'edit'
   const [filter, setFilter] = useState({
-    device_id: '',
-    username: ''
+    device_id: "",
+    username: "",
   });
-  
+
   const [formData, setFormData] = useState({
-    id: '',
-    device_id: '',
-    username: '',
-    ph_level: '',
-    ec: '',
-    moisture: '',
-    nitrogen: '',
-    phosphorous: '',
-    potassium: '',
+    id: "",
+    device_id: "",
+    username: "",
+    ph_level: "",
+    ec: "",
+    moisture: "",
+    nitrogen: "",
+    phosphorous: "",
+    potassium: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -36,28 +38,28 @@ export default function CalibrationPage() {
   // Reset form to empty state
   const resetForm = () => {
     setFormData({
-      id: '',
-      device_id: '',
-      username: '',
-      ph_level: '',
-      ec: '',
-      moisture: '',
-      nitrogen: '',
-      phosphorous: '',
-      potassium: '',
+      id: "",
+      device_id: "",
+      username: "",
+      ph_level: "",
+      ec: "",
+      moisture: "",
+      nitrogen: "",
+      phosphorous: "",
+      potassium: "",
     });
     setError(null);
     setSuccess(false);
   };
 
   const openAddModal = () => {
-    setMode('add');
+    setMode("add");
     resetForm();
     setIsModalOpen(true);
   };
 
   const openEditModal = (data) => {
-    setMode('edit');
+    setMode("edit");
     setFormData({
       id: data.id,
       device_id: data.device_id,
@@ -89,7 +91,7 @@ export default function CalibrationPage() {
         potassium: parseFloat(formData.potassium),
       };
 
-      if (mode === 'add') {
+      if (mode === "add") {
         await submitCalibrationData(dataToSend);
         setSuccess(true);
         resetForm();
@@ -102,14 +104,13 @@ export default function CalibrationPage() {
       const data = await fetchSoilData();
       setSoilData(data);
       applyFilters(data, filter);
-      
+
       // Close modal after 2 seconds on success
       setTimeout(() => {
         if (success) {
           setIsModalOpen(false);
         }
       }, 1000);
-      
     } catch (err) {
       setError(err.message || `Failed to ${mode} calibration data`);
     } finally {
@@ -119,29 +120,29 @@ export default function CalibrationPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilter(prev => ({
+    setFilter((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const applyFilters = (data, filters) => {
     let result = [...data];
     if (filters.device_id) {
-      result = result.filter(item => 
+      result = result.filter((item) =>
         item.device_id.toLowerCase().includes(filters.device_id.toLowerCase())
       );
     }
     if (filters.username) {
-      result = result.filter(item => 
+      result = result.filter((item) =>
         item.username.toLowerCase().includes(filters.username.toLowerCase())
       );
     }
@@ -150,8 +151,8 @@ export default function CalibrationPage() {
 
   const resetFilters = () => {
     setFilter({
-      device_id: '',
-      username: ''
+      device_id: "",
+      username: "",
     });
     setFilteredData(soilData);
   };
@@ -163,7 +164,7 @@ export default function CalibrationPage() {
         setSoilData(data);
         setFilteredData(data);
       } catch (error) {
-        console.error('Failed to load soil data:', error);
+        console.error("Failed to load soil data:", error);
       } finally {
         setLoading(false);
       }
@@ -175,11 +176,70 @@ export default function CalibrationPage() {
     applyFilters(soilData, filter);
   }, [filter, soilData]);
 
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      allowOutsideClick: false,
+    });
+
+    if (result.isConfirmed) {
+      try {
+        setIsLoading(true);
+
+        // Show loading alert
+        Swal.fire({
+          title: "Deleting...",
+          html: "Please wait while we delete the soil data",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        await deleteSoilData(id);
+
+        // Refresh the data after deletion
+        const data = await fetchSoilData();
+        setSoilData(data);
+        applyFilters(data, filter);
+
+        // Show success alert
+        Swal.fire({
+          title: "Deleted!",
+          text: "Soil data has been deleted.",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          timer: 2000,
+          timerProgressBar: true,
+        });
+      } catch (err) {
+        // Show error alert
+        Swal.fire({
+          title: "Error!",
+          text: err.message || "Failed to delete soil data",
+          icon: "error",
+          confirmButtonColor: "#3085d6",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Calibration Management</h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+          Calibration Management
+        </h1>
         <div className="flex space-x-3">
           <button
             onClick={openAddModal}
@@ -195,7 +255,10 @@ export default function CalibrationPage() {
       <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label htmlFor="filter-device-id" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="filter-device-id"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Device ID
             </label>
             <input
@@ -207,7 +270,7 @@ export default function CalibrationPage() {
               placeholder="Filter by device ID"
             />
           </div>
-         
+
           <div className="flex items-end">
             <button
               onClick={resetFilters}
@@ -226,28 +289,50 @@ export default function CalibrationPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Calibrated</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Device ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Username
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Calibrated
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredData.map((data) => (
-                <tr key={data.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{data.device_id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{data.username}</td>
+                <tr
+                  key={data.id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {data.device_id}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {data.username}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(data.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button 
+                    <button
                       onClick={() => openEditModal(data)}
                       className="text-blue-600 hover:text-blue-900 mr-3"
                     >
                       Edit
                     </button>
-                    <button className="text-red-600 hover:text-red-900">Delete</button>
+                    <button
+                      onClick={() => handleDelete(data.id)}
+                      className="text-red-600 hover:text-red-900 "
+                      title="Delete"
+                    >
+                     
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -255,20 +340,23 @@ export default function CalibrationPage() {
           </table>
         </div>
       ) : (
-        <div className='text-xl text-gray-500 animate-pulse text-center'>Loading data...</div>
+        <div className="text-xl text-gray-500 animate-pulse text-center">
+          Loading data...
+        </div>
       )}
 
       {/* Table footer */}
       <div className="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
         <div className="text-sm text-gray-500">
-          Showing <span className="font-medium">1</span> to <span className="font-medium">{filteredData.length}</span> of{' '}
+          Showing <span className="font-medium">1</span> to{" "}
+          <span className="font-medium">{filteredData.length}</span> of{" "}
           <span className="font-medium">{soilData.length}</span> results
         </div>
       </div>
 
       {/* Single Modal for both Add and Edit */}
       {isModalOpen && (
-        <div 
+        <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
@@ -277,9 +365,9 @@ export default function CalibrationPage() {
           <div className="bg-white p-6 rounded-xl w-full max-w-2xl relative shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 id="modal-title" className="text-2xl font-bold text-gray-800">
-                {mode === 'add' ? 'New Calibration' : 'Edit Calibration'}
+                {mode === "add" ? "New Calibration" : "Edit Calibration"}
               </h2>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
                 disabled={isLoading}
@@ -288,15 +376,22 @@ export default function CalibrationPage() {
                 <FiX size={24} />
               </button>
             </div>
-            
+
             {/* Success/Error Messages */}
             {success && (
-              <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg" role="alert">
-                Calibration data {mode === 'add' ? 'submitted' : 'updated'} successfully!
+              <div
+                className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg"
+                role="alert"
+              >
+                Calibration data {mode === "add" ? "submitted" : "updated"}{" "}
+                successfully!
               </div>
             )}
             {error && (
-              <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg" role="alert">
+              <div
+                className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg"
+                role="alert"
+              >
                 {error}
               </div>
             )}
@@ -305,15 +400,18 @@ export default function CalibrationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Device ID */}
                 <div>
-                  <label htmlFor="device_id" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="device_id"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Device ID
                   </label>
-                  <input 
+                  <input
                     id="device_id"
                     name="device_id"
                     value={formData.device_id}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter device ID" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter device ID"
                     onChange={handleChange}
                     required
                   />
@@ -321,15 +419,18 @@ export default function CalibrationPage() {
 
                 {/* Username */}
                 <div>
-                  <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="username"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Username
                   </label>
-                  <input 
+                  <input
                     id="username"
                     name="username"
                     value={formData.username}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter username" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter username"
                     onChange={handleChange}
                     required
                   />
@@ -337,15 +438,18 @@ export default function CalibrationPage() {
 
                 {/* pH Level */}
                 <div>
-                  <label htmlFor="ph_level" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="ph_level"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     pH Level
                   </label>
-                  <input 
+                  <input
                     id="ph_level"
                     name="ph_level"
                     value={formData.ph_level}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter pH value" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter pH value"
                     type="number"
                     step="0.01"
                     min="0"
@@ -356,15 +460,18 @@ export default function CalibrationPage() {
 
                 {/* Moisture Value */}
                 <div>
-                  <label htmlFor="moisture" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="moisture"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Moisture Value
                   </label>
-                  <input 
+                  <input
                     id="moisture"
                     name="moisture"
                     value={formData.moisture}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter Moisture value" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter Moisture value"
                     type="number"
                     step="0.01"
                     min="0"
@@ -375,15 +482,18 @@ export default function CalibrationPage() {
 
                 {/* EC Value */}
                 <div>
-                  <label htmlFor="ec" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="ec"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     EC Value
                   </label>
-                  <input 
+                  <input
                     id="ec"
                     name="ec"
                     value={formData.ec}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter EC value" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter EC value"
                     type="number"
                     step="0.01"
                     min="0"
@@ -394,15 +504,18 @@ export default function CalibrationPage() {
 
                 {/* Phosphorous Value */}
                 <div>
-                  <label htmlFor="phosphorous" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="phosphorous"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Phosphorous Value
                   </label>
-                  <input 
+                  <input
                     id="phosphorous"
                     name="phosphorous"
                     value={formData.phosphorous}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter Phosphorous value" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter Phosphorous value"
                     type="number"
                     step="0.01"
                     min="0"
@@ -413,15 +526,18 @@ export default function CalibrationPage() {
 
                 {/* Nitrogen Value */}
                 <div>
-                  <label htmlFor="nitrogen" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="nitrogen"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Nitrogen Value
                   </label>
-                  <input 
+                  <input
                     id="nitrogen"
                     name="nitrogen"
                     value={formData.nitrogen}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter Nitrogen value" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter Nitrogen value"
                     type="number"
                     step="0.01"
                     min="0"
@@ -432,15 +548,18 @@ export default function CalibrationPage() {
 
                 {/* Potassium Value */}
                 <div>
-                  <label htmlFor="potassium" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="potassium"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Potassium Value
                   </label>
-                  <input 
+                  <input
                     id="potassium"
                     name="potassium"
                     value={formData.potassium}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
-                    placeholder="Enter Potassium value" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    placeholder="Enter Potassium value"
                     type="number"
                     step="0.01"
                     min="0"
@@ -449,7 +568,7 @@ export default function CalibrationPage() {
                   />
                 </div>
               </div>
-              
+
               <div className="pt-4 flex justify-end space-x-3">
                 <button
                   type="button"
@@ -468,12 +587,14 @@ export default function CalibrationPage() {
                   {isLoading ? (
                     <>
                       <FiRefreshCw className="mr-2 animate-spin" />
-                      {mode === 'add' ? 'Saving...' : 'Updating...'}
+                      {mode === "add" ? "Saving..." : "Updating..."}
                     </>
                   ) : (
                     <>
                       <FiSave className="mr-2" />
-                      {mode === 'add' ? 'Save Calibration' : 'Update Calibration'}
+                      {mode === "add"
+                        ? "Save Calibration"
+                        : "Update Calibration"}
                     </>
                   )}
                 </button>
