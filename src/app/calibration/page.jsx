@@ -23,12 +23,12 @@ export default function CalibrationPage() {
     id: "",
     device_id: "",
     username: "",
-    ph_level: "",
-    ec: "",
-    moisture: "",
-    nitrogen: "",
-    phosphorous: "",
-    potassium: "",
+    ph_level: 1,
+    ec:1,
+    moisture: 1,
+    nitrogen: 1,
+    phosphorous: 1,
+    potassium: 1,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -451,8 +451,8 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter pH value"
                     type="number"
-                    step="0.01"
-                    min="0"
+                  
+                    min="1"
                     onChange={handleChange}
                     required
                   />
@@ -473,8 +473,8 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter Moisture value"
                     type="number"
-                    step="0.01"
-                    min="0"
+            
+                    min="1"
                     onChange={handleChange}
                     required
                   />
@@ -495,8 +495,8 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter EC value"
                     type="number"
-                    step="0.01"
-                    min="0"
+                   
+                    min="1"
                     onChange={handleChange}
                     required
                   />
@@ -517,8 +517,8 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter Phosphorous value"
                     type="number"
-                    step="0.01"
-                    min="0"
+           
+                    min="1"
                     onChange={handleChange}
                     required
                   />
@@ -539,8 +539,8 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter Nitrogen value"
                     type="number"
-                    step="0.01"
-                    min="0"
+                
+                    min="1"
                     onChange={handleChange}
                     required
                   />
@@ -561,8 +561,8 @@ export default function CalibrationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     placeholder="Enter Potassium value"
                     type="number"
-                    step="0.01"
-                    min="0"
+                
+                    min="1"
                     onChange={handleChange}
                     required
                   />
