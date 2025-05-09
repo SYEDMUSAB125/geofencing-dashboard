@@ -153,8 +153,9 @@ const handleSetting = () => {
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white text-black shadow-lg rounded-lg p-6"
+          className="bg-white   text-black shadow-lg rounded-lg p-6"
         >
+         <div className="" >
          <div className="flex justify-between">
          <h2 className="text-2xl font-bold mb-6">Add New Farm</h2>
         <div className="flex justify-end space-x-2" >
@@ -230,103 +231,80 @@ const handleSetting = () => {
 
             <button
               type="submit"
-              className="w-full bg-black text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-500 focus:ring focus:ring-indigo-200"
+              className="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md shadow-md hover:bg-green-500 focus:ring focus:ring-indigo-200"
             >
               Save to Cloud
             </button>
           </form>
+         </div>
         </motion.div>
 
-        {/* Data Section */}
        {/* Saved Farms Section */}
      {/* Data Section */}
-     <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="bg-white text-black shadow-lg rounded-lg p-6"
+    <motion.div
+  initial={{ opacity: 0, x: 50 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.5 }}
+  className="bg-white text-black shadow-lg rounded-lg p-6"
+>
+  <h2 className="text-2xl font-bold mb-4">Saved Farms</h2>
+  
+  {/* Dropdown Button for Mobile */}
+  <div className="lg:hidden mb-4">
+    <button
+      onClick={() => setExpandedFarmers(!expandedFarmers)}
+      className="w-full px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-md hover:shadow-lg transition-all"
+    >
+      {expandedFarmers ? 'Hide Saved Farms' : 'Show Saved Farms'}
+    </button>
+  </div>
+
+  {/* Farms List - Single implementation with responsive behavior */}
+  {(expandedFarmers || window.innerWidth >= 1024) && (
+    <ul className="space-y-4 h-[60vh] overflow-y-auto pr-2">
+      {farms.map((farm) => (
+        <motion.li
+          key={farm.id}
+          whileHover={{ scale: 1.01 }}
+          className="border rounded-lg p-4 flex flex-col sm:flex-row justify-between gap-4 bg-gray-50 hover:shadow-md transition-all"
         >
-          <h2 className="text-2xl font-bold mb-4">Saved Farms</h2>
-          {/* Dropdown Button for Mobile */}
-          <div className="lg:hidden mb-4">
+          <div className="flex-1 min-w-0"> {/* Allows text to break properly */}
+            <p className="text-lg font-bold break-words">{farm.farmName}</p>
+            <div className="grid grid-cols-2 gap-2 mt-2 text-sm text-gray-600">
+              <p className="break-all">
+                <span className="font-medium">Lat:</span> {farm.lat}
+              </p>
+              <p className="break-all">
+                <span className="font-medium">Long:</span> {farm.long}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-end min-w-fit">
             <button
-              onClick={() => setExpandedFarmers(!expandedFarmers)}
-              className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg rounded-lg"
+              onClick={() => handleEdit(farm.id, farm)}
+              className="px-3 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors flex items-center justify-center gap-1"
             >
-              {expandedFarmers ? 'Hide Saved Farms' : 'Show Saved Farms'}
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <span>Edit</span>
+            </button>
+            <button
+              onClick={() => handleDelete(farm.id)}
+              className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors flex items-center justify-center gap-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              <span>Delete</span>
             </button>
           </div>
-          {/* Farms List (Conditional Rendering for Mobile) */}
-          {expandedFarmers && (
-            <ul className="space-y-4 max-h-96 overflow-y-auto">
-              {farms.map((farm) => (
-                <li
-                  key={farm.id}
-                  className="border rounded-md p-4 flex justify-between items-center bg-gray-50 hover:shadow-lg transition-shadow"
-                >
-                  <div>
-                    <p className="text-lg font-bold">{farm.farmName}</p>
-                    <p className="text-sm text-gray-600">
-                      Lat(s): {farm.lat}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Long(s): {farm.long}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(farm.id, farm)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(farm.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-          {/* Desktop View Farms List */}
-          <div className="hidden lg:block">
-            <ul className="space-y-4 max-h-96 overflow-y-auto">
-              {farms.map((farm) => (
-                <li
-                  key={farm.id}
-                  className="border rounded-md p-4 flex justify-between items-center bg-gray-50 hover:shadow-lg transition-shadow"
-                >
-                  <div>
-                    <p className="text-lg font-bold">{farm.farmName}</p>
-                    <p className="text-sm text-gray-600">
-                      Lat(s): {farm.lat}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Long(s): {farm.long}
-                    </p>
-                  </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(farm.id, farm)}
-                      className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(farm.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </motion.div>
+        </motion.li>
+      ))}
+    </ul>
+  )}
+</motion.div>
 
         {/* Farmers Data Section */}
         <div className="lg:col-span-3">
@@ -334,7 +312,7 @@ const handleSetting = () => {
             <h2 className="text-2xl font-bold">Total Farmers: {farmers.length}</h2>
             <button
               onClick={() => setExpandedFarmersData(!expandedFarmersData)}
-              className="mt-4 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg rounded-lg"
+              className="mt-4 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg rounded-lg"
             >
               {expandedFarmersData ? "Hide Farmers Data" : "Show Farmers Data"}
             </button>

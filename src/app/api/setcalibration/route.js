@@ -1,4 +1,3 @@
-// src/app/api/setcalibration/route.js
 import sql from "./db"
 
 async function initializeDatabase() {
@@ -8,16 +7,29 @@ async function initializeDatabase() {
         id SERIAL PRIMARY KEY,
         device_id VARCHAR(50) NOT NULL,
         username VARCHAR(100) NOT NULL,
-        ph_level DECIMAL(5,2),
-        ec DECIMAL(5,2),
-        moisture DECIMAL(5,2),
-        nitrogen DECIMAL(5,2),
-        phosphorous DECIMAL(5,2),
-        potassium DECIMAL(5,2),
+        fieldname VARCHAR(100) NOT NULL,
+        
+        -- Least Threshold values
+        ph_level_min DECIMAL(5,2),
+        ec_min DECIMAL(5,2),
+        moisture_min DECIMAL(5,2),
+        nitrogen_min DECIMAL(5,2),
+        phosphorous_min DECIMAL(5,2),
+        potassium_min DECIMAL(5,2),
+        
+        -- Greater Threshold values
+        ph_level_max DECIMAL(5,2),
+        ec_max DECIMAL(5,2),
+        moisture_max DECIMAL(5,2),
+        nitrogen_max DECIMAL(5,2),
+        phosphorous_max DECIMAL(5,2),
+        potassium_max DECIMAL(5,2),
+        
         created_at TIMESTAMP DEFAULT NOW(),
-        UNIQUE(username)
+        UNIQUE(username, fieldname)
       )
     `;
+   
   } catch (error) {
     console.error('Database initialization failed:', error);
     throw error;
@@ -25,11 +37,8 @@ async function initializeDatabase() {
 }
 
 export async function POST(request) {
-
-  
-
-  // Verify table exists (retry initialization if needed)
   try {
+    // First check if table exists
     const tableExists = await sql`
       SELECT EXISTS (
         SELECT FROM information_schema.tables 
@@ -38,40 +47,67 @@ export async function POST(request) {
     `;
     
     if (!tableExists[0].exists) {
+      
       await initializeDatabase();
     }
-  } catch (error) {
-    return Response.json(
-      { error: 'Database initialization failed' },
-      { status: 500 }
-    );
-  }
 
-  // Process request
-  try {
+    // Process request
     const data = await request.json();
-    console.log(data)
-    const { device_id, username, ph_level, ec, moisture, nitrogen, phosphorous, potassium } = data;
+    console.log('Received data:', data);
+    
+    const { 
+      device_id, 
+      username, 
+      fieldname,
+      ph_level_min,
+      ec_min,
+      moisture_min,
+      nitrogen_min,
+      phosphorous_min,
+      potassium_min,
+      ph_level_max,
+      ec_max,
+      moisture_max,
+      nitrogen_max,
+      phosphorous_max,
+      potassium_max
+    } = data;
+    
     const value = {
       device_id,
       username,
-      ph_level: ph_level || null,
-      ec: ec || null,
-      moisture: moisture || null,
-      nitrogen: nitrogen || null,
-      phosphorous: phosphorous || null,
-      potassium: potassium || null
+      fieldname,
+      ph_level_min: ph_level_min || null,
+      ec_min: ec_min || null,
+      moisture_min: moisture_min || null,
+      nitrogen_min: nitrogen_min || null,
+      phosphorous_min: phosphorous_min || null,
+      potassium_min: potassium_min || null,
+      ph_level_max: ph_level_max || null,
+      ec_max: ec_max || null,
+      moisture_max: moisture_max || null,
+      nitrogen_max: nitrogen_max || null,
+      phosphorous_max: phosphorous_max || null,
+      potassium_max: potassium_max || null
     };
+    
     const result = await sql`
       INSERT INTO soil_data ${sql(value, [
         'device_id',
         'username',
-        'ph_level',
-        'ec',
-        'moisture',
-        'nitrogen',
-        'phosphorous',
-        'potassium'
+        'fieldname',
+        'ph_level_min',
+        'ec_min',
+        'moisture_min',
+        'nitrogen_min',
+        'phosphorous_min',
+        'potassium_min',
+        'ph_level_max',
+        'ec_max',
+        'moisture_max',
+        'nitrogen_max',
+        'phosphorous_max',
+        'potassium_max'
       ])}
       RETURNING *
     `;
@@ -80,15 +116,15 @@ export async function POST(request) {
   } catch (error) {
     console.error('Database operation failed:', error);
     
-    if (error.constraint === 'soil_data_username_key') {
+    if (error.constraint === 'soil_data_username_fieldname_key') {
       return Response.json(
-        { error: 'Username already exists' },
+        { error: 'This username and fieldname combination already exists' },
         { status: 409 }
       );
     }
     
     return Response.json(
-      { error: 'Internal server error' },
+      { error: error.message || 'Internal server error' },
       { status: 500 }
     );
   }
