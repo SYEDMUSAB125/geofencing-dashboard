@@ -247,7 +247,7 @@ export default function CalibrationPage() {
           </table>
         </div>
       ) : (
-        <div className="text-xl text-white animate-pulse text-center">
+        <div className="text-xl text-gray-600 animate-pulse text-center">
           Loading data...
         </div>
       )}
