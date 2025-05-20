@@ -5,10 +5,11 @@ import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 import { useFirebase } from "@/hooks/useFirebase";
 import Header from "../components/Header";
-import { LuUpload } from "react-icons/lu";
+import { LuKeyRound, LuUpload } from "react-icons/lu";
 import { IoMdSettings } from "react-icons/io";
 import UploadImg from "../components/UploadImg";
 import { useRouter } from "next/navigation";
+import RegistrationModal from "../components/RegistrationModal";
 export default function Dashboard() {
   const [farmers, setFarmers] = useState([]);
   const [farmerDetails, setFarmerDetails] = useState({});
@@ -17,6 +18,7 @@ export default function Dashboard() {
   const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
   const [openImgSelecter, setOpenImgSelecter] = useState(false);
    const [isClient, setIsClient] = useState(false);
+     const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
@@ -49,7 +51,7 @@ export default function Dashboard() {
     fetchData();
   }, [fetchFieldData]);
 
- 
+
   
   const validateLatLng = (lat, lng) => {
     const latArray = lat.split(",").map((value) => parseFloat(value.trim()));
@@ -162,11 +164,16 @@ const handleSetting = () => {
          <div className="flex justify-between">
          <h2 className="text-2xl font-bold mb-6">Add New Farm</h2>
         <div className="flex justify-end space-x-2" >
-        <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
+        <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center hover:cursor-pointer hover:bg-gray-300 rounded-full">
          <LuUpload size={22} />
          </div>
-         <div onClick={handleSetting} className= "bg-gray-200 h-12 w-12 flex items-center justify-center  rounded-full">
+         <div onClick={handleSetting} className= "bg-gray-200 hover:bg-gray-300 h-12 w-12 flex items-center justify-center  rounded-full hover:cursor-pointer ">
          <IoMdSettings size={22} />
+       
+         </div>
+         <div  onClick={() => setIsModalOpen(true)} className= "bg-gray-200 h-12 w-12 flex items-center justify-center hover:bg-gray-300  rounded-full hover:cursor-pointer">
+         < LuKeyRound size={22} />
+       
          </div>
         
         </div>
@@ -365,6 +372,11 @@ const handleSetting = () => {
  
         </div>
       </main>
+        <RegistrationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      
+      />
     </div>
   );
 }

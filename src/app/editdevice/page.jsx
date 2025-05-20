@@ -33,7 +33,7 @@ const EditThresholdForm = () => {
     moisture_max: 1,
     nitrogen_max: 1,
     phosphorous_max: 1,
-    potassium_max: 100,
+    potassium_max: 1,
   });
 
   useEffect(() => {
@@ -61,12 +61,12 @@ const EditThresholdForm = () => {
               nitrogen_min: parseFloat(parsedData.nitrogen_min) || 1,
               phosphorous_min: parseFloat(parsedData.phosphorous_min) || 1,
               potassium_min: parseFloat(parsedData.potassium_min) || 1,
-              ph_level_max: parseFloat(parsedData.ph_level_max) || 21,
-              ec_max: parseFloat(parsedData.ec_max) || 21,
-              moisture_max: parseFloat(parsedData.moisture_max) || 21,
-              nitrogen_max: parseFloat(parsedData.nitrogen_max) || 21,
-              phosphorous_max: parseFloat(parsedData.phosphorous_max) || 21,
-              potassium_max: parseFloat(parsedData.potassium_max) || 100
+              ph_level_max: parseFloat(parsedData.ph_level_max) || 1,
+              ec_max: parseFloat(parsedData.ec_max) || 1,
+              moisture_max: parseFloat(parsedData.moisture_max) || 1,
+              nitrogen_max: parseFloat(parsedData.nitrogen_max) || 1,
+              phosphorous_max: parseFloat(parsedData.phosphorous_max) || 1,
+              potassium_max: parseFloat(parsedData.potassium_max) || 1
             });
           }
         }
@@ -203,6 +203,17 @@ const EditThresholdForm = () => {
                 disabled={isLoading}
               />
             </div>
+                <div className="form-group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Set Your Moisture Condition</label>
+              <input
+                type="text"
+                name="moisture_min"
+                value={formData.moisture_min}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter field name"
+              />
+            </div>
           </div>
         </div>
 
@@ -220,7 +231,6 @@ const EditThresholdForm = () => {
               {[
                 { label: "pH Level (Min)", name: "ph_level_min", min: 0, step: 1 },
                 { label: "EC (Min)", name: "ec_min", min: 0, step: 1 },
-                { label: "Moisture (Min %)", name: "moisture_min", min: 0, step: 1 },
                 { label: "Nitrogen (Min ppm)", name: "nitrogen_min", min: 0, step: 1 },
                 { label: "Phosphorous (Min ppm)", name: "phosphorous_min", min: 0, step: 1 },
                 { label: "Potassium (Min ppm)", name: "potassium_min", min: 0, step: 1 },
@@ -254,7 +264,6 @@ const EditThresholdForm = () => {
               {[
                 { label: "pH Level (Max)", name: "ph_level_max", min: 0, step: 1 },
                 { label: "EC (Max)", name: "ec_max", min: 0, step: 1 },
-                { label: "Moisture (Max %)", name: "moisture_max", min: 0, step: 1 },
                 { label: "Nitrogen (Max ppm)", name: "nitrogen_max", min: 0, step: 1 },
                 { label: "Phosphorous (Max ppm)", name: "phosphorous_max", min: 0, step: 1 },
                 { label: "Potassium (Max ppm)", name: "potassium_max", min: 0, step: 1 },

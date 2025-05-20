@@ -26,12 +26,12 @@ const ThresholdForm = () => {
     potassium_min: 1,
     
     // Greater Threshold values
-    ph_level_max: 21,
-    ec_max: 21,
-    moisture_max: 30,
-    nitrogen_max: 21,
-    phosphorous_max: 21,
-    potassium_max: 21,
+    ph_level_max: 1,
+    ec_max: 1,
+    moisture_max: 1,
+    nitrogen_max: 1,
+    phosphorous_max: 1,
+    potassium_max: 1,
   });
 
   const handleChange = (e) => {
@@ -55,7 +55,7 @@ const ThresholdForm = () => {
       // Prepare the data to send
       const dataToSend = {
         device_id: formData.device_id,
-        username: formData.username,
+        username: formData.username.split("@")[0],
         fieldname: formData.fieldname,
         ph_level_min: formData.ph_level_min,
         ec_min: formData.ec_min,
@@ -93,12 +93,12 @@ const ThresholdForm = () => {
         nitrogen_min: 1,
         phosphorous_min: 1,
         potassium_min: 1,
-        ph_level_max: 21,
-        ec_max: 21,
-        moisture_max: 21,
-        nitrogen_max: 21,
-        phosphorous_max: 21,
-        potassium_max: 21
+        ph_level_max: 1,
+        ec_max: 1,
+        moisture_max: 1,
+        nitrogen_max: 1,
+        phosphorous_max: 1,
+        potassium_max: 1
       });
   
     } catch (err) {
@@ -147,14 +147,14 @@ const ThresholdForm = () => {
             </div>
             
             <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Username</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
               <input
                 type="text"
                 name="username"
-                value={formData.username}
+                value={formData.username }
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter username"
+                placeholder="Enter the same email that you registered. "
               />
             </div>
             
@@ -166,11 +166,11 @@ const ThresholdForm = () => {
                 value={formData.fieldname}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter field name"
+                placeholder="Enter the same field name that you registered."
               />
             </div>
             <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Min Threshold Moisture Condition</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Set Your Moisture Condition</label>
               <input
                 type="text"
                 name="moisture_min"
@@ -180,17 +180,7 @@ const ThresholdForm = () => {
                 placeholder="Enter field name"
               />
             </div>
-            <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Max Threshold Moisture Condition</label>
-              <input
-                type="text"
-                name="moisture_max"
-                value={formData.moisture_max}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Enter field name"
-              />
-            </div>
+           
           </div>
         </div>
 
