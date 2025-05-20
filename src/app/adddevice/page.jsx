@@ -20,7 +20,7 @@ const ThresholdForm = () => {
     // Least Threshold values
     ph_level_min: 1,
     ec_min: 1,
-    moisture_min: 1,
+    moisture_min: 20,
     nitrogen_min: 1,
     phosphorous_min: 1,
     potassium_min: 1,
@@ -28,7 +28,7 @@ const ThresholdForm = () => {
     // Greater Threshold values
     ph_level_max: 21,
     ec_max: 21,
-    moisture_max: 21,
+    moisture_max: 30,
     nitrogen_max: 21,
     phosphorous_max: 21,
     potassium_max: 21,
@@ -89,7 +89,7 @@ const ThresholdForm = () => {
         fieldname: "",
         ph_level_min: 1,
         ec_min: 1,
-        moisture_min: 1,
+        moisture_min: 20,
         nitrogen_min: 1,
         phosphorous_min: 1,
         potassium_min: 1,
@@ -105,7 +105,7 @@ const ThresholdForm = () => {
       setError(err.message || 'Failed to save calibration data');
       
       // Show error alert
-      await MySwal.fire({
+      await Swal.fire({
         title: 'Error!',
         text: err.message || 'Failed to save calibration data',
         icon: 'error',
@@ -169,6 +169,28 @@ const ThresholdForm = () => {
                 placeholder="Enter field name"
               />
             </div>
+            <div className="form-group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Min Threshold Moisture Condition</label>
+              <input
+                type="text"
+                name="moisture_min"
+                value={formData.moisture_min}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter field name"
+              />
+            </div>
+            <div className="form-group">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Max Threshold Moisture Condition</label>
+              <input
+                type="text"
+                name="moisture_max"
+                value={formData.moisture_max}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="Enter field name"
+              />
+            </div>
           </div>
         </div>
 
@@ -186,7 +208,6 @@ const ThresholdForm = () => {
               {[
                 { label: "pH Level (Min)", name: "ph_level_min", min: 0,  step: 1 },
                 { label: "EC (Min)", name: "ec_min", min: 0, step: 1 },
-                { label: "Moisture (Min %)", name: "moisture_min", min: 0,  step: 1 },
                 { label: "Nitrogen (Min ppm)", name: "nitrogen_min", min: 0, step: 1 },
                 { label: "Phosphorous (Min ppm)", name: "phosphorous_min", min: 0, step: 1 },
                 { label: "Potassium (Min ppm)", name: "potassium_min", min: 0, step: 1 },
@@ -220,7 +241,6 @@ const ThresholdForm = () => {
               {[
                 { label: "pH Level (Max)", name: "ph_level_max", min: 0,  step: 1 },
                 { label: "EC (Max)", name: "ec_max", min: 0, step: 1 },
-                { label: "Moisture (Max %)", name: "moisture_max", min: 0,  step: 1 },
                 { label: "Nitrogen (Max ppm)", name: "nitrogen_max", min: 0, step: 1 },
                 { label: "Phosphorous (Max ppm)", name: "phosphorous_max", min: 0, step: 1 },
                 { label: "Potassium (Max ppm)", name: "potassium_max", min: 0, step: 1 },
