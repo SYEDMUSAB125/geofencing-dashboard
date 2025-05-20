@@ -6,10 +6,10 @@ import Swal from "sweetalert2";
 import { useFirebase } from "@/hooks/useFirebase";
 import Header from "../components/Header";
 import { LuKeyRound, LuUpload } from "react-icons/lu";
-import { IoMdSettings } from "react-icons/io";
+
 import UploadImg from "../components/UploadImg";
-import { useRouter } from "next/navigation";
-import RegistrationModal from "../components/RegistrationModal";
+
+
 export default function Dashboard() {
   const [farmers, setFarmers] = useState([]);
   const [farmerDetails, setFarmerDetails] = useState({});
@@ -18,8 +18,8 @@ export default function Dashboard() {
   const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
   const [openImgSelecter, setOpenImgSelecter] = useState(false);
    const [isClient, setIsClient] = useState(false);
-     const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
+  
+
   const [formData, setFormData] = useState({
     email: "",
     farmName: "",
@@ -143,9 +143,6 @@ const getLong = (longg)=>{
 }
 
 
-const handleSetting = () => {
- router.push("/calibration")
-}
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -167,14 +164,7 @@ const handleSetting = () => {
         <div onClick={handleKml} className= "bg-gray-200 h-12 w-12 flex items-center justify-center hover:cursor-pointer hover:bg-gray-300 rounded-full">
          <LuUpload size={22} />
          </div>
-         <div onClick={handleSetting} className= "bg-gray-200 hover:bg-gray-300 h-12 w-12 flex items-center justify-center  rounded-full hover:cursor-pointer ">
-         <IoMdSettings size={22} />
-       
-         </div>
-         <div  onClick={() => setIsModalOpen(true)} className= "bg-gray-200 h-12 w-12 flex items-center justify-center hover:bg-gray-300  rounded-full hover:cursor-pointer">
-         < LuKeyRound size={22} />
-       
-         </div>
+        
         
         </div>
          </div>
@@ -372,11 +362,7 @@ const handleSetting = () => {
  
         </div>
       </main>
-        <RegistrationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      
-      />
+       
     </div>
   );
 }
