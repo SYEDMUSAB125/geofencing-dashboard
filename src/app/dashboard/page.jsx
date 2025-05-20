@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [expandedData, setExpandedData] = useState(false);
   const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
   const [openImgSelecter, setOpenImgSelecter] = useState(false);
+   const [isClient, setIsClient] = useState(false);
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
@@ -26,7 +27,9 @@ export default function Dashboard() {
   const [farms, setFarms] = useState([]);
   const { saveFieldData, fetchFieldData, deleteFieldData, updateFieldData } =
     useFirebase();
-
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       const data = await fetchFieldData();
@@ -260,7 +263,7 @@ const handleSetting = () => {
   </div>
 
   {/* Farms List - Single implementation with responsive behavior */}
-  {(expandedFarmers || window.innerWidth >= 1024) && (
+  {(expandedFarmers || (isClient && window.innerWidth >= 1024)) && (
     <ul className="space-y-4 h-[60vh] overflow-y-auto pr-2">
       {farms.map((farm) => (
         <motion.li
