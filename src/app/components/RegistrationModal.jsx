@@ -124,7 +124,7 @@ const RegistrationModal = ({ isOpen, onClose }) => {
               type="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 text-black border rounded"
               required
               placeholder='Enter your password'
             />
@@ -139,7 +139,7 @@ const RegistrationModal = ({ isOpen, onClose }) => {
               type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full text-black p-2 border rounded"
               required
               placeholder='Confirm your password'
             />
