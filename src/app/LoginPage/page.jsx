@@ -17,8 +17,10 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const staticEmail = "crop2x@gmail.com";
-    const staticPassword = "crop2x";
+    const staticEmail = process.env.NEXT_PUBLIC_STATIC_EMAIL;
+    const staticPassword = process.env.NEXT_PUBLIC_STATIC_PASSWORD;
+    
+
 
     if (email !== staticEmail || password !== staticPassword) {
       Swal.fire("Invalid Credentials", "The email or password is incorrect.", "error");
