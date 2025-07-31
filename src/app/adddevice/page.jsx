@@ -170,7 +170,7 @@ const ThresholdForm = () => {
               />
             </div>
             <div className="form-group">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Set Your Moisture Condition</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Soil Moisture Threshold value (%)</label>
               <input
                 type="text"
                 name="moisture_min"
@@ -192,15 +192,15 @@ const ThresholdForm = () => {
               <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
               </svg>
-              Minimum Thresholds
+              Correction Factor for Moisture less than Threshold
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                { label: "pH Level (Min)", name: "ph_level_min", min: 0,  step: 1 },
-                { label: "EC (Min)", name: "ec_min", min: 0, step: 1 },
-                { label: "Nitrogen (Min ppm)", name: "nitrogen_min", min: 0, step: 1 },
-                { label: "Phosphorous (Min ppm)", name: "phosphorous_min", min: 0, step: 1 },
-                { label: "Potassium (Min ppm)", name: "potassium_min", min: 0, step: 1 },
+                { label: "pH Level (CF For Moisture < TH)", name: "ph_level_min", min: 0,  step: 1 },
+                { label: "EC (CF For Moisture < TH)", name: "ec_min", min: 0, step: 1 },
+                { label: "Nitrogen (CF For Moisture < TH)", name: "nitrogen_min", min: 0, step: 1 },
+                { label: "Phosphorous (CF For Moisture < TH)", name: "phosphorous_min", min: 0, step: 1 },
+                { label: "Potassium (CF For Moisture < TH)", name: "potassium_min", min: 0, step: 1 },
               ].map((field) => (
                 <div key={field.name} className="form-group">
                   <label className="block text-sm font-medium text-gray-700 mb-2">{field.label}</label>
@@ -225,15 +225,15 @@ const ThresholdForm = () => {
               <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Maximum Thresholds
+               Correction Factor for Moisture greater than Threshold
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
-                { label: "pH Level (Max)", name: "ph_level_max", min: 0,  step: 1 },
-                { label: "EC (Max)", name: "ec_max", min: 0, step: 1 },
-                { label: "Nitrogen (Max ppm)", name: "nitrogen_max", min: 0, step: 1 },
-                { label: "Phosphorous (Max ppm)", name: "phosphorous_max", min: 0, step: 1 },
-                { label: "Potassium (Max ppm)", name: "potassium_max", min: 0, step: 1 },
+                { label: "pH Level (CF For Moisture > TH)", name: "ph_level_max", min: 0,  step: 1 },
+                { label: "EC (CF For Moisture > TH)", name: "ec_max", min: 0, step: 1 },
+                { label: "Nitrogen (CF For Moisture > TH)", name: "nitrogen_max", min: 0, step: 1 },
+                { label: "Phosphorous (CF For Moisture > TH)", name: "phosphorous_max", min: 0, step: 1 },
+                { label: "Potassium (CF For Moisture > TH)", name: "potassium_max", min: 0, step: 1 },
               ].map((field) => (
                 <div key={field.name} className="form-group">
                   <label className="block text-sm font-medium text-gray-700 mb-2">{field.label}</label>
