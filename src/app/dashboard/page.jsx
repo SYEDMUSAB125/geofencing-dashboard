@@ -17,8 +17,8 @@ export default function Dashboard() {
   const [expandedData, setExpandedData] = useState(false);
   const [expandedFarmersData, setExpandedFarmersData] = useState(false); // For Farmers Data
   const [openImgSelecter, setOpenImgSelecter] = useState(false);
-   const [isClient, setIsClient] = useState(false);
-  
+
+  const [isClient, setIsClient] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -145,7 +145,7 @@ const getLong = (longg)=>{
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="flex flex-col overflow-hidden min-h-screen bg-gray-100">
 
       <Header />
 
