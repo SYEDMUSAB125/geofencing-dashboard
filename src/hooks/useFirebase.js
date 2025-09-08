@@ -1,8 +1,9 @@
 import { database } from '@/firebase/firebase';
 import { ref, set, get, remove, update } from 'firebase/database';
+import { useCallback } from 'react';
 
 export const useFirebase = () => {
-  const saveFieldData = async (userId, fieldData) => {
+  const saveFieldData = useCallback(async (userId, fieldData) => {
     try {
       const farmRef = ref(database, `farmer/${userId}/data/${fieldData.farmName}`);
       await set(farmRef, {
@@ -13,9 +14,9 @@ export const useFirebase = () => {
     } catch (error) {
       console.error('Error saving field data:', error);
     }
-  };
+  }, []);
 
-  const fetchFieldData = async () => {
+  const fetchFieldData = useCallback(async () => {
     try {
       const refPath = ref(database, "farmer");
       const snapshot = await get(refPath);
@@ -44,9 +45,35 @@ export const useFirebase = () => {
       console.error('Error fetching field data:', error);
       return [];
     }
-  };
+  }, []);
 
-  const deleteFieldData = async (id) => {
+  const fetchDeviceData = useCallback(async () => {
+    try {
+      const refPath = ref(database, "devices");
+      const snapshot = await get(refPath);
+
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const devices = [];
+        Object.keys(data).forEach((deviceId) => {
+          const deviceData = data[deviceId];
+          devices.push({
+            id: deviceId,
+            ...deviceData,
+          });
+        });
+
+        return devices;
+      }
+
+      return [];
+    } catch (error) {
+      console.error('Error fetching device data:', error);
+      return [];
+    }
+  }, []);
+
+  const deleteFieldData = useCallback(async (id) => {
     try {
       const [userId, farmName] = id.split('-');
       const refPath = ref(database, `farmer/${userId}/data/${farmName}`);
@@ -55,9 +82,9 @@ export const useFirebase = () => {
     } catch (error) {
       console.error('Error deleting field data:', error);
     }
-  };
+  }, []);
 
-  const updateFieldData = async (id, updatedData) => {
+  const updateFieldData = useCallback(async (id, updatedData) => {
     try {
       const [userId, farmName] = id.split('-');
       const refPath = ref(database, `farmer/${userId}/data/${farmName}`);
@@ -66,9 +93,9 @@ export const useFirebase = () => {
     } catch (error) {
       console.error('Error updating field data:', error);
     }
-  };
+  }, []);
 
-  const adminLogin = async (email, password) => {
+  const adminLogin = useCallback(async (email, password) => {
     try {
       // Reference to the admins data node in Firebase
       const adminsRef = ref(database, `admins`);
@@ -99,7 +126,7 @@ export const useFirebase = () => {
       console.error("Error during admin login:", error);
       return { success: false, message: error.message };
     }
-  };
+  }, []);
 
-  return { saveFieldData, fetchFieldData, deleteFieldData, updateFieldData, adminLogin };
+  return { saveFieldData, fetchFieldData, fetchDeviceData, deleteFieldData, updateFieldData, adminLogin };
 };

@@ -4,7 +4,7 @@ import { useState } from "react";
 import RegistrationModal from "./RegistrationModal";
 import { TbPasswordUser } from "react-icons/tb";
 import { IoMdSettings } from "react-icons/io";
-import { LuKeyRound } from "react-icons/lu";
+import { LuDatabaseZap, LuKeyRound } from "react-icons/lu";
 import { useRouter } from "next/navigation";
 import UserManagementModal from "./UserManagement";
 
@@ -34,7 +34,24 @@ export default function Header({ toggleDrawer }) {
             Settings
           </span>
         </div>
+
+        <div 
+          onClick={() => router.push("/userdata")} 
+          className="bg-gray-200 hover:bg-gray-300 h-12 w-12 flex items-center justify-center rounded-full hover:cursor-pointer relative group"
+      
+        >
+          <LuDatabaseZap  size={22} color="black" />
+          {/* Custom Tooltip (alternative to native title) */}
+          <span className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+            User Data
+          </span>
+        </div>
         
+
+
+
+
+
         {/* Key Icon with Tooltip */}
         <div 
           onClick={() => setIsModalOpen(true)} 
