@@ -209,7 +209,7 @@ function UserData() {
                     data.temperature
                   )}`}
                 >
-                  {data.temperature?.toFixed(1) || "N/A"}°C
+                  {data.temperature?.toFixed(1) || "N/AA"}°C
                 </span>
               </td>
             </tr>
